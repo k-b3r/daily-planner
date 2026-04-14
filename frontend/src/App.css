@@ -1,0 +1,304 @@
+.app {
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+h1 {
+  margin-bottom: 24px;
+}
+
+/* Calendar */
+.calendar {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.calendar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  font-weight: bold;
+}
+
+.calendar-header button {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 0 8px;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  text-align: center;
+}
+
+.calendar-day-name {
+  font-size: 12px;
+  color: #888;
+  padding: 4px 0;
+}
+
+.calendar-day {
+  background: none;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  padding: 2px 0;
+  cursor: pointer;
+  font-size: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1.2;
+}
+
+.day-number {
+  font-size: 12px;
+}
+
+.day-badge {
+  font-size: 9px;
+  color: #888;
+  margin-top: 1px;
+}
+
+.calendar-day.selected .day-badge {
+  color: rgba(255,255,255,0.8);
+}
+
+.calendar-day:hover {
+  background: #f0f0f0;
+}
+
+.calendar-day.today {
+  font-weight: bold;
+  color: #2563eb;
+}
+
+.calendar-day.past {
+  color: #bbb;
+}
+
+.calendar-day.selected {
+  background: #2563eb;
+  color: white;
+  border-color: #2563eb;
+}
+
+/* Checklist */
+.checklist {
+  margin-top: 24px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.checklist h2 {
+  font-size: 16px;
+  margin-bottom: 4px;
+}
+
+.checklist-progress {
+  font-size: 13px;
+  color: #888;
+  margin-bottom: 12px;
+}
+
+.checklist ul {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.checklist-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.checklist-item label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.checklist-item label.done {
+  text-decoration: line-through;
+  color: #aaa;
+}
+
+.checklist-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-note {
+  background: none;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 11px;
+  padding: 2px 6px;
+  cursor: pointer;
+  color: #888;
+}
+
+.btn-delete {
+  background: none;
+  border: none;
+  color: #ccc;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 0 4px;
+}
+
+.btn-delete:hover {
+  color: #e55;
+}
+
+.task-notes {
+  width: 100%;
+  margin-top: 6px;
+  padding: 6px 8px;
+  font-size: 13px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  resize: vertical;
+  min-height: 60px;
+  font-family: inherit;
+}
+
+.tag {
+  font-size: 11px;
+  background: #f0f0f0;
+  color: #888;
+  border-radius: 4px;
+  padding: 1px 6px;
+}
+
+.checklist-form {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.checklist-form input {
+  flex: 1;
+  padding: 6px 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.checklist-form button {
+  padding: 6px 14px;
+  background: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.readonly-notice {
+  margin-top: 12px;
+  font-size: 13px;
+  color: #aaa;
+}
+
+/* Progress graph */
+.progress-graph {
+  margin-top: 24px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.progress-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+.progress-track {
+  height: 12px;
+  background: #f0f0f0;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: #2563eb;
+  border-radius: 6px;
+  transition: width 0.3s ease;
+}
+
+.progress-label {
+  margin-top: 8px;
+  font-size: 12px;
+  color: #888;
+}
+
+/* Consistency graph */
+.consistency-graph {
+  margin-top: 24px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.consistency-title {
+  font-size: 13px;
+  font-weight: bold;
+  margin-bottom: 12px;
+  color: #444;
+}
+
+.consistency-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 80px;
+}
+
+.consistency-bar-wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  height: 100%;
+}
+
+.consistency-bar {
+  width: 100%;
+  background: #dbeafe;
+  border-radius: 2px 2px 0 0;
+  min-height: 2px;
+  transition: height 0.3s ease;
+}
+
+.consistency-bar.today {
+  background: #2563eb;
+}
+
+.consistency-bar:hover {
+  filter: brightness(0.85);
+  cursor: default;
+}
+
+.bar-label {
+  font-size: 8px;
+  color: #bbb;
+  margin-top: 2px;
+}
