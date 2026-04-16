@@ -1,12 +1,10 @@
 import { useEffect, useState } from 'react'
 import Calendar from './Calendar'
-import Checklist from './Checklist'
+import Checklist, { ChecklistSkeleton } from './Checklist'
 import ProgressGraph from './ProgressGraph'
 import ConsistencyGraph from './ConsistencyGraph'
 import { fetchTasksForDate, fetchTasksForMonth, createTask, updateTask, deleteTask, Task } from './api'
 import { RECURRING_TITLES } from './constants'
-import './App.css'
-
 export type DayMap = Record<string, { done: number; total: number }>
 
 function todayString(): string {
@@ -15,7 +13,7 @@ function todayString(): string {
 }
 
 function toViewMonth(dateStr: string): string {
-  return dateStr.slice(0, 7) // "YYYY-MM-DD" → "YYYY-MM"
+  return dateStr.slice(0, 7)
 }
 
 const TODAY = todayString()
@@ -23,6 +21,7 @@ const TODAY = todayString()
 function App() {
   const [selectedDate, setSelectedDate] = useState(TODAY)
   const [viewMonth, setViewMonth] = useState(toViewMonth(TODAY))
+  const [calendarView, setCalendarView] = useState<'month' | 'week'>('month')
   const [tasks, setTasks] = useState<Task[]>([])
   const [dayMap, setDayMap] = useState<DayMap>({})
   const [loading, setLoading] = useState(false)
@@ -31,12 +30,10 @@ function App() {
   const isReadOnly = false // temporary: allow ticking any day for testing
   const canAdd = !isPast
 
-  // Fetch tasks for the selected day
   useEffect(() => {
     async function load() {
       setLoading(true)
       const existing = await fetchTasksForDate(selectedDate)
-
       const existingTitles = existing.filter(t => t.is_recurring).map(t => t.title)
       const missing = RECURRING_TITLES.filter(title => !existingTitles.includes(title))
       const seeded = await Promise.all(
@@ -44,14 +41,12 @@ function App() {
           createTask({ title, date: selectedDate, is_recurring: true, is_done: false, notes: '' })
         )
       )
-
       setTasks([...existing, ...seeded])
       setLoading(false)
     }
     load()
   }, [selectedDate])
 
-  // Fetch all tasks for the visible month → build DayMap for badges + consistency graph
   useEffect(() => {
     async function loadMonth() {
       const monthTasks = await fetchTasksForMonth(viewMonth)
@@ -66,7 +61,6 @@ function App() {
     loadMonth()
   }, [viewMonth])
 
-  // After a task is toggled, also update dayMap so badges stay in sync
   function syncDayMap(date: string, updatedTasks: Task[]) {
     const done = updatedTasks.filter(t => t.is_done).length
     const total = updatedTasks.length
@@ -99,21 +93,33 @@ function App() {
     syncDayMap(selectedDate, nextTasks)
   }
 
-  const todayTasks = selectedDate === TODAY ? tasks : []
-  const todayCompleted = todayTasks.filter(t => t.is_done).length
+  const selectedCompleted = tasks.filter(t => t.is_done).length
 
   return (
-    <div className="app">
-      <h1>Productivity</h1>
+    <div className="max-w-lg mx-auto px-4 py-6">
+      <h1 className="text-2xl font-bold mb-2">Productivity</h1>
+      <ProgressGraph completed={selectedCompleted} total={tasks.length} selectedDate={selectedDate} />
+      <div className="flex gap-1 mt-4 mb-2">
+        {(['month', 'week'] as const).map(v => (
+          <button
+            key={v}
+            onClick={() => setCalendarView(v)}
+            className={`px-3 py-1 rounded text-sm transition-colors capitalize ${calendarView === v ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground hover:bg-muted'}`}
+          >
+            {v}
+          </button>
+        ))}
+      </div>
       <Calendar
         selectedDate={selectedDate}
         onSelectDate={setSelectedDate}
         viewMonth={viewMonth}
         onViewMonthChange={setViewMonth}
         dayMap={dayMap}
+        calendarView={calendarView}
       />
       {loading ? (
-        <p style={{ marginTop: 24, color: '#888' }}>Loading…</p>
+        <ChecklistSkeleton rows={3} />
       ) : (
         <Checklist
           tasks={tasks}
@@ -126,7 +132,6 @@ function App() {
           onDelete={handleDelete}
         />
       )}
-      <ProgressGraph completed={todayCompleted} total={todayTasks.length} />
       <ConsistencyGraph dayMap={dayMap} viewMonth={viewMonth} />
     </div>
   )
