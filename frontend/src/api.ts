@@ -9,6 +9,7 @@ export interface Task {
   notes: string
   created_at: string
   updated_at: string
+  streak: number
 }
 
 export async function fetchTasksForDate(date: string): Promise<Task[]> {

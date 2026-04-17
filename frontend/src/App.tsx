@@ -27,6 +27,12 @@ function App() {
   const [dayMap, setDayMap] = useState<DayMap>({})
   const [loading, setLoading] = useState(false)
 
+  function shiftDate(dateStr: string, days: number): string {
+    const d = new Date(dateStr + 'T00:00:00')
+    d.setDate(d.getDate() + days)
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+  }
+
   const isPast = selectedDate < TODAY
   const isReadOnly = false // temporary: allow ticking any day for testing
   const canAdd = !isPast
@@ -105,12 +111,14 @@ function App() {
         selectedDate={selectedDate}
         onClick={() => setCalendarOpen(o => !o)}
         isOpen={calendarOpen}
+        onPrev={() => { const d = shiftDate(selectedDate, -1); setSelectedDate(d); setViewMonth(toViewMonth(d)) }}
+        onNext={() => { const d = shiftDate(selectedDate, 1); setSelectedDate(d); setViewMonth(toViewMonth(d)) }}
       />
       {calendarOpen && (
         <>
           <div className="fixed inset-0 bg-black/40 z-40" onClick={() => setCalendarOpen(false)} />
-          <div className="fixed top-0 left-0 right-0 z-50 flex justify-center px-4 pt-4 animate-in slide-in-from-top-2 duration-200">
-            <div className="w-full max-w-lg">
+          <div className="fixed top-0 left-0 right-0 z-50 flex justify-center px-4 pt-4 animate-in slide-in-from-top-2 duration-200" onClick={() => setCalendarOpen(false)}>
+            <div className="w-full max-w-lg" onClick={e => e.stopPropagation()}>
               <div className="flex gap-1 mb-2">
                 {(['month', 'week'] as const).map(v => (
                   <button

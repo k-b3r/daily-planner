@@ -89,6 +89,14 @@ function Checklist({ tasks, isReadOnly, isPast, canAdd, onToggle, onAddTask, onU
                   disabled={isReadOnly}
                 />
                 {task.title}
+                {task.is_recurring && task.streak > 0 && (
+                  <span className="relative group/streak -mt-2">
+                    <span className="text-sm cursor-default">🔥</span>
+                    <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 bg-popover text-popover-foreground text-xs px-1.5 py-0.5 rounded shadow whitespace-nowrap opacity-0 group-hover/streak:opacity-100 transition-opacity pointer-events-none z-10">
+                      {task.streak}-day streak
+                    </span>
+                  </span>
+                )}
                 {task.notes && (
                   <span className="relative group/note -mt-2 -ml-1">
                     <NotebookPen className="w-3 h-3 text-muted-foreground cursor-default" />
