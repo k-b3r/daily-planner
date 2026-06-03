@@ -3,8 +3,8 @@ import Calendar from './Calendar'
 import Checklist, { ChecklistSkeleton } from './Checklist'
 import ProgressGraph from './ProgressGraph'
 import ConsistencyGraph from './ConsistencyGraph'
-import { fetchTasksForDate, fetchTasksForMonth, createTask, updateTask, deleteTask, Task } from './api'
-import { RECURRING_TITLES } from './constants'
+import HabitsPage from './HabitsPage'
+import { fetchTasksForDate, fetchTasksForMonth, fetchRecurringTasks, addTask, createHabitEntry, updateTask, deleteTask, Task, RecurringTask } from './api'
 export type DayMap = Record<string, { done: number; total: number }>
 
 function todayString(): string {
@@ -19,11 +19,13 @@ function toViewMonth(dateStr: string): string {
 const TODAY = todayString()
 
 function App() {
+  const [view, setView] = useState<'home' | 'habits'>('home')
   const [selectedDate, setSelectedDate] = useState(TODAY)
   const [viewMonth, setViewMonth] = useState(toViewMonth(TODAY))
   const [calendarView, setCalendarView] = useState<'month' | 'week'>('month')
   const [calendarOpen, setCalendarOpen] = useState(false)
   const [tasks, setTasks] = useState<Task[]>([])
+  const [recurringTasks, setRecurringTasks] = useState<RecurringTask[]>([])
   const [dayMap, setDayMap] = useState<DayMap>({})
   const [loading, setLoading] = useState(false)
 
@@ -34,25 +36,33 @@ function App() {
   }
 
   const isPast = selectedDate < TODAY
-  const isReadOnly = false // temporary: allow ticking any day for testing
+  const isReadOnly = false
   const canAdd = !isPast
+
+  useEffect(() => {
+    fetchRecurringTasks().then(setRecurringTasks)
+  }, [])
 
   useEffect(() => {
     async function load() {
       setLoading(true)
       const existing = await fetchTasksForDate(selectedDate)
-      const existingTitles = existing.filter(t => t.is_recurring).map(t => t.title)
-      const missing = RECURRING_TITLES.filter(title => !existingTitles.includes(title))
+      const existingTemplateIds = new Set(existing.filter(t => t.recurring_task !== null).map(t => t.recurring_task))
+      const weekday = (new Date(selectedDate + 'T00:00:00').getDay() + 6) % 7
+      const applicable = recurringTasks.filter(rt =>
+        selectedDate >= rt.start_date &&
+        (rt.end_date === null || selectedDate <= rt.end_date) &&
+        (rt.days.length === 0 || rt.days.includes(weekday))
+      )
+      const missing = applicable.filter(rt => !existingTemplateIds.has(rt.id))
       const seeded = await Promise.all(
-        missing.map(title =>
-          createTask({ title, date: selectedDate, is_recurring: true, is_done: false, notes: '' })
-        )
+        missing.map(rt => createHabitEntry(rt, selectedDate))
       )
       setTasks([...existing, ...seeded])
       setLoading(false)
     }
     load()
-  }, [selectedDate])
+  }, [selectedDate, recurringTasks])
 
   useEffect(() => {
     async function loadMonth() {
@@ -82,7 +92,7 @@ function App() {
   }
 
   async function handleAddTask(title: string) {
-    const created = await createTask({ title, date: selectedDate, is_recurring: false, is_done: false, notes: '' })
+    const created = await addTask({ title, date: selectedDate, is_done: false, notes: '' })
     const nextTasks = [...tasks, created]
     setTasks(nextTasks)
     syncDayMap(selectedDate, nextTasks)
@@ -102,9 +112,16 @@ function App() {
 
   const selectedCompleted = tasks.filter(t => t.is_done).length
 
+  if (view === 'habits') {
+    return <HabitsPage onBack={() => setView('home')} recurringTasks={recurringTasks} onRecurringTasksChange={setRecurringTasks} />
+  }
+
   return (
     <div className="max-w-lg mx-auto px-4 py-6">
-      <h1 className="text-2xl font-bold mb-2">Productivity</h1>
+      <div className="flex items-center justify-between mb-2">
+        <h1 className="text-2xl font-bold">Productivity</h1>
+        <button onClick={() => setView('habits')} className="text-sm text-muted-foreground hover:text-foreground transition-colors">Habits</button>
+      </div>
       <ProgressGraph
         completed={selectedCompleted}
         total={tasks.length}
@@ -156,7 +173,7 @@ function App() {
           onDelete={handleDelete}
         />
       )}
-      <ConsistencyGraph dayMap={dayMap} viewMonth={viewMonth} />
+      <ConsistencyGraph dayMap={dayMap} viewMonth={viewMonth} onSelectDate={setSelectedDate} />
     </div>
   )
 }

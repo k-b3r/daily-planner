@@ -5,9 +5,10 @@ import { completionColor } from './utils'
 interface Props {
   dayMap: DayMap
   viewMonth: string
+  onSelectDate: (date: string) => void
 }
 
-function ConsistencyGraph({ dayMap, viewMonth }: Props) {
+function ConsistencyGraph({ dayMap, viewMonth, onSelectDate }: Props) {
   const [year, month] = viewMonth.split('-').map(Number)
   const daysInMonth = new Date(year, month, 0).getDate()
 
@@ -30,7 +31,7 @@ function ConsistencyGraph({ dayMap, viewMonth }: Props) {
       <CardContent>
         <div className="flex gap-2">
           {/* Y-axis */}
-          <div className="flex flex-col justify-between text-[10px] text-muted-foreground h-20 pr-1 text-right select-none">
+          <div className="flex flex-col justify-between text-[10px] text-muted-foreground h-32 pr-1 text-right select-none">
             <span>100%</span>
             <span>50%</span>
             <span>0%</span>
@@ -45,15 +46,17 @@ function ConsistencyGraph({ dayMap, viewMonth }: Props) {
               <div className="border-t border-border/50 h-0" />
             </div>
 
-            <div className="flex items-end gap-[3px] h-20">
+            <div className="flex items-end gap-[3px] h-32">
               {days.map(({ day, dateStr, percent, tooltip, color }) => (
-                <div
+                <button
                   key={dateStr}
-                  className="relative flex flex-col items-center justify-end h-full flex-1 group"
+                  className="relative flex flex-col items-center justify-end h-full flex-1 group cursor-pointer rounded-sm hover:bg-muted/40 transition-colors"
                   title={tooltip}
+                  onClick={() => onSelectDate(dateStr)}
                 >
+                  <div className="absolute inset-0 rounded-sm bg-muted/0 group-hover:bg-muted/40 transition-colors" />
                   <div
-                    className="w-full rounded-t-sm transition-all duration-300 group-hover:brightness-75"
+                    className="w-full rounded-t-sm transition-all duration-300 group-hover:brightness-75 relative"
                     style={{
                       height: `${percent}%`,
                       minHeight: percent > 0 ? '3px' : '0',
@@ -67,7 +70,7 @@ function ConsistencyGraph({ dayMap, viewMonth }: Props) {
                   <div className="absolute bottom-full mb-1 left-1/2 -translate-x-1/2 bg-popover text-popover-foreground text-xs px-1.5 py-0.5 rounded shadow whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
                     {tooltip}
                   </div>
-                </div>
+                </button>
               ))}
             </div>
           </div>

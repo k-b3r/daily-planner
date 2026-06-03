@@ -82,13 +82,24 @@ function Checklist({ tasks, isReadOnly, isPast, canAdd, onToggle, onAddTask, onU
         {[...recurring, ...oneOff].map(task => (
           <div key={task.id}>
             <div className="flex items-center justify-between">
-              <label className={`flex items-center gap-2 cursor-pointer text-sm ${task.is_done ? 'line-through text-muted-foreground' : ''}`}>
-                <Checkbox
-                  checked={task.is_done}
-                  onCheckedChange={() => onToggle(task.id, task.is_done)}
-                  disabled={isReadOnly}
-                />
-                {task.title}
+              <div className="flex flex-col gap-0.5">
+                <div className="flex items-center gap-2">
+                <label className={`flex items-center gap-2 cursor-pointer text-sm ${task.is_done ? 'line-through text-muted-foreground' : ''}`}>
+                  <Checkbox
+                    checked={task.is_done}
+                    onCheckedChange={() => onToggle(task.id, task.is_done)}
+                    disabled={isReadOnly}
+                  />
+                  {task.title}
+                </label>
+                {task.notes && (
+                  <span className="relative group/note -mt-2">
+                    <NotebookPen className="w-3 h-3 text-muted-foreground cursor-default" />
+                    <span className="absolute bottom-full left-0 mb-1 w-48 bg-popover text-popover-foreground text-[11px] px-2 py-1.5 rounded shadow whitespace-pre-wrap opacity-0 group-hover/note:opacity-100 transition-opacity pointer-events-none z-10">
+                      {task.notes}
+                    </span>
+                  </span>
+                )}
                 {task.is_recurring && task.streak > 0 && (
                   <span className="relative group/streak -mt-2">
                     <span className="text-sm cursor-default">🔥</span>
@@ -97,18 +108,14 @@ function Checklist({ tasks, isReadOnly, isPast, canAdd, onToggle, onAddTask, onU
                     </span>
                   </span>
                 )}
-                {task.notes && (
-                  <span className="relative group/note -mt-2 -ml-1">
-                    <NotebookPen className="w-3 h-3 text-muted-foreground cursor-default" />
-                    <span className="absolute bottom-full left-0 mb-1 w-48 bg-popover text-popover-foreground text-[11px] px-2 py-1.5 rounded shadow whitespace-pre-wrap opacity-0 group-hover/note:opacity-100 transition-opacity pointer-events-none z-10">
-                      {task.notes}
-                    </span>
-                  </span>
-                )}
                 {task.is_recurring && (
                   <span className="text-[10px] bg-muted text-muted-foreground rounded px-1.5 py-0.5">recurring</span>
                 )}
-              </label>
+                </div>
+                {task.habit_notes && (
+                  <span className="text-[11px] text-muted-foreground leading-tight pl-6">{task.habit_notes}</span>
+                )}
+              </div>
               <div className="flex items-center gap-2">
                 <Button variant="ghost" size="sm" className="h-6 text-xs px-2 text-muted-foreground" onClick={() => toggleExpand(task.id)}>
                   {expandedId === task.id ? 'hide note' : 'note'}
