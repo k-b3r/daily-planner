@@ -1,26 +1,28 @@
 from datetime import date
+
 from rest_framework import viewsets
-from .models import Task, RecurringTask
-from .serializers import TaskSerializer, RecurringTaskSerializer
+
+from .models import RecurringTask, Task
+from .serializers import RecurringTaskSerializer, TaskSerializer
 
 
 class TaskViewSet(viewsets.ModelViewSet):
     serializer_class = TaskSerializer
 
     def get_queryset(self):
-        date_param = self.request.query_params.get('date')
-        month = self.request.query_params.get('month')
+        date_param = self.request.query_params.get("date")
+        month = self.request.query_params.get("month")
         if date_param:
             return Task.objects.filter(date=date_param)
         if month:
-            year, m = month.split('-')
+            year, m = month.split("-")
             return Task.objects.filter(date__year=year, date__month=m)
         return Task.objects.all()
 
 
 class RecurringTaskViewSet(viewsets.ModelViewSet):
     serializer_class = RecurringTaskSerializer
-    queryset = RecurringTask.objects.all().order_by('created_at')
+    queryset = RecurringTask.objects.all().order_by("created_at")
 
     def partial_update(self, request, *args, **kwargs):
         response = super().partial_update(request, *args, **kwargs)
